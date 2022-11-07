@@ -1,0 +1,54 @@
+"""MyrtDesk discovery helper"""
+from typing import Union
+from asyncio import exceptions
+from socket import getfqdn, gethostname, gethostbyname_ex
+from .datagram import open_broadcast
+from .system.constants import DOMAIN_SYSTEM, COMMAND_PING
+from .constants import API_PORT
+
+__all__=['discover']
+
+def apply_mask(local_address: str, mask: str) -> str:
+    """Applies the netmask to the /24 address"""
+    segments = local_address.split(".")
+    mask_segments = mask.split(".")
+    result_address = ""
+    index = 0
+    for segment in mask_segments:
+        if len(result_address) > 0:
+            result_address += "."
+        if segment == "255":
+            result_address += f"{segments[index]}"
+        elif segment == "0":
+            result_address += "255"
+        index += 1
+    return result_address
+
+def get_discovery_host() -> str:
+    """Finds discovery host"""
+    hosts = gethostbyname_ex(getfqdn(gethostname()))
+    local_ips = hosts[2]
+    if len(local_ips) > 1:
+        return ""
+    return apply_mask(local_ips[0], "255.255.255.0")
+
+async def discover(host: str = None) -> Union[None, str]:
+    """Finds desk IP address on network via broadcast ping"""
+    if host is None:
+        # TODO: Remove this hack
+        host = '192.168.31.255'
+    broadcast = await open_broadcast((host, API_PORT))
+    ping_request = [
+        2,
+        DOMAIN_SYSTEM,
+        COMMAND_PING
+    ]
+    broadcast.send(bytes(ping_request))
+    try:
+        item = await broadcast.receive()
+        response_data = list(item[0][0])
+        if len(response_data) == response_data[0] + 1 and response_data[3] == 0:
+            return item[0][1][0]
+    except exceptions.TimeoutError:
+        return None
+    return None

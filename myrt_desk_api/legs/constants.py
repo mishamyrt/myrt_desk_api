@@ -1,0 +1,6 @@
+"""MyrtDesk legs constants"""
+
+DOMAIN_LEGS = 2
+
+COMMAND_READ_HEIGHT = 0
+COMMAND_SET_HEIGHT = 1
