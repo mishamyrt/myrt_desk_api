@@ -1,8 +1,9 @@
 """MyrtDesk legs"""
 
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Callable
 from ..domain import MyrtDeskDomain
 from ..bytes import low_byte, high_byte
+from .ota import update_ota
 from .constants import (
     DOMAIN_SYSTEM,
     COMMAND_READ,
@@ -20,9 +21,11 @@ class MyrtDeskSystem(MyrtDeskDomain):
         """Get current height"""
         await self._send_command([COMMAND_REBOOT])
         return
-        # if not success:
-        #     return None
-        # return (response[3] << 8) + response[4]
 
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))
+    async def update_firmware(self, file: bytes, reporter: Callable):
+        """Updates controller firmware"""
+        def report_progress (val: float) -> None:
+            if reporter is not None:
+                reporter(val)
+        # pylint: disable-next=protected-access
+        await update_ota(self._transport._host, 6100, file, report_progress)

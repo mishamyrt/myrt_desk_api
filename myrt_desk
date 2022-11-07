@@ -76,10 +76,17 @@ async def main():
         await desk.backlight.set_white(args.warmness)
     elif args.command == 'flash-backlight':
         print("Updating desk's backlight firmware...")
-        with open(args.path, encoding="utf-8") as file:
+        with open(args.path, mode="rb") as file:
             contents = file.read()
             def report_progress(val: float):
                 _print_progress(val)
             await desk.backlight.update_firmware(contents, report_progress)
+    elif args.command == 'flash-controller':
+        print("Updating desk's controller firmware...")
+        with open(args.path, mode="rb") as file:
+            contents = file.read()
+            def report_progress(val: float):
+                _print_progress(val)
+            await desk.system.update_firmware(contents, report_progress)
 if __name__ == '__main__':
     run(main())

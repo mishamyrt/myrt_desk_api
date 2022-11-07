@@ -40,9 +40,9 @@ class MyrtDeskBacklight(MyrtDeskDomain):
             'brightness': brightness,
         }
 
-    async def update_firmware(self, hex_content: str, reporter: Callable = None):
+    async def update_firmware(self, hex_content: bytes, reporter: Callable = None):
         """Flashes Intel HEX formatted firmware to backlight"""
-        firmware = Firmware(hex_content)
+        firmware = Firmware(hex_content.decode())
         (_, success) = await self._send_command([
             COMMAND_FIRMWARE_RECEIVE,
             high_byte(firmware.size),
