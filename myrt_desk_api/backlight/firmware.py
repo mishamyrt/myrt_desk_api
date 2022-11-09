@@ -65,7 +65,7 @@ class Firmware():
             warn(f"Unknown command symbol '{command_symbol}'")
             return False
         self._read_body(length)
-        self._i += 3
+        self._i += 4
         return True
 
     def _read_body(self, length: int):
