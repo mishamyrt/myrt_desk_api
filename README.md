@@ -1,4 +1,4 @@
-# MyrtDesk API
+# MyrtDesk API [![PyPI version](https://badge.fury.io/py/myrt-desk-api.svg)](https://pypi.org/project/myrt-desk-api/)
 
 Library for controlling smart table functions with my own [firmware](https://github.com/mishamyrt/myrt_desk_firmware).
 
