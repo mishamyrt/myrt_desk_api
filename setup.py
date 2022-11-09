@@ -24,5 +24,5 @@ setuptools.setup(
     ],
     python_requires='>=3.7',
     package_dir={'':'.'},
-    scripts=['myrt_desk']
+    scripts=['bin/myrt_desk']
 )
