@@ -8,6 +8,12 @@ from .constants import API_PORT
 
 __all__=['discover']
 
+PING_REQUEST = bytes([
+    2,
+    DOMAIN_SYSTEM,
+    COMMAND_PING
+])
+
 def apply_mask(local_address: str, mask: str) -> str:
     """Applies the netmask to the /24 address"""
     segments = local_address.split(".")
@@ -35,20 +41,16 @@ def get_discovery_host() -> str:
 async def discover(host: str = None) -> Union[None, str]:
     """Finds desk IP address on network via broadcast ping"""
     if host is None:
-        # TODO: Remove this hack
-        host = '192.168.31.255'
+        host = '255.255.255.255'
     broadcast = await open_broadcast((host, API_PORT))
-    ping_request = [
-        2,
-        DOMAIN_SYSTEM,
-        COMMAND_PING
-    ]
-    broadcast.send(bytes(ping_request))
-    try:
-        item = await broadcast.receive()
-        response_data = list(item[0][0])
-        if len(response_data) == response_data[0] + 1 and response_data[3] == 0:
-            return item[0][1][0]
-    except exceptions.TimeoutError:
-        return None
+    attempts = 5
+    while attempts != 0:
+        try:
+            broadcast.send(PING_REQUEST)
+            item = await broadcast.receive(1.0, 1)
+            response_data = list(item[0][0])
+            if len(response_data) == response_data[0] + 1 and response_data[3] == 0:
+                return item[0][1][0]
+        except (exceptions.TimeoutError, IndexError):
+            attempts -= 1
     return None
