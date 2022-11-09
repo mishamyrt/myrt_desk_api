@@ -38,6 +38,11 @@ flash_controller_parser = subparsers.add_parser(
 flash_controller_parser.add_argument(
     'path', action='store', help='The path to the firmware to be installed'
 )
+# A power commands
+subparsers.add_parser(
+    'on', help='Enables backlight')
+subparsers.add_parser(
+    'off', help='Disables backlight')
 
 def _print_progress (iteration):
     prefix = ''
@@ -101,5 +106,9 @@ async def main():
             def report_progress(val: float):
                 _print_progress(val)
             await desk.system.update_firmware(contents, report_progress)
+    elif args.command == 'off':
+        await desk.backlight.set_power(False)
+    elif args.command == 'on':
+        await desk.backlight.set_power(True)
 if __name__ == '__main__':
     run(main())
