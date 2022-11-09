@@ -5,6 +5,7 @@ from ..bytes import high_byte, low_byte
 from ..domain import MyrtDeskDomain
 from .firmware import Firmware
 from .ping import host_down, host_up
+from .effects import Effect
 from .constants import (
     DOMAIN_BACKLIGHT,
     COMMAND_SET_COLOR,
@@ -35,7 +36,7 @@ class MyrtDeskBacklight(MyrtDeskDomain):
         [_, _, _, enabled, effect, mode, r, g, b, warmness, brightness] = data
         return {
             'enabled': enabled == 1,
-            'effect': effect,
+            'effect': Effect(effect),
             'mode': mode,
             'color': (r, g, b),
             'warmness': warmness,
@@ -82,7 +83,11 @@ class MyrtDeskBacklight(MyrtDeskDomain):
 
     async def start_ambient(self, zones: List[AmbientZone]) -> bool:
         """Start ambient effect with zones"""
-        (_, success) = await self._send_command([COMMAND_SET_EFFECT, 3, len(zones), []])
+        payload = []
+        for zone in zones:
+            payload.append(zone[0])
+            payload.append(zone[1])
+        (_, success) = await self._send_command([COMMAND_SET_EFFECT, Effect.AMBIENT, len(zones), *payload])
         return success
 
     async def set_ambient_colors(self, colors: List[RGBColor]) -> bool:
