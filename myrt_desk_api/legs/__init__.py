@@ -18,19 +18,16 @@ class MyrtDeskLegs(MyrtDeskDomain):
 
     async def get_height(self) -> Union[None, int]:
         """Get current height"""
-        (response, success) = await self._send_command([COMMAND_READ_HEIGHT])
+        (response, success) = await self.send_command([COMMAND_READ_HEIGHT])
         if not success:
             return None
         return (response[3] << 8) + response[4]
 
     async def set_height(self, value: int) -> bool:
         """Get current height"""
-        (_, success) = await self._send_command([
+        (_, success) = await self.send_command([
             COMMAND_SET_HEIGHT,
             high_byte(value),
             low_byte(value),
         ])
         return success
-
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))

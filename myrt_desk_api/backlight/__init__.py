@@ -29,7 +29,7 @@ class MyrtDeskBacklight(MyrtDeskDomain):
 
     async def read_state(self):
         """Reads backlight state"""
-        (data, success) = await self._send_command([COMMAND_READ_STATE])
+        (data, success) = await self.send_command([COMMAND_READ_STATE])
         if not success:
             return None
         # pylint: disable-next=invalid-name
@@ -46,7 +46,7 @@ class MyrtDeskBacklight(MyrtDeskDomain):
     async def update_firmware(self, hex_content: bytes, reporter: Callable = None):
         """Flashes Intel HEX formatted firmware to backlight"""
         firmware = Firmware(hex_content.decode())
-        (_, success) = await self._send_command([
+        (_, success) = await self.send_command([
             COMMAND_FIRMWARE_RECEIVE,
             high_byte(firmware.size),
             low_byte(firmware.size)
@@ -58,7 +58,7 @@ class MyrtDeskBacklight(MyrtDeskDomain):
         progress = 0
         percent = 98 / len(pages)
         for page in pages:
-            (_, success) = await self._send_command([
+            (_, success) = await self.send_command([
                 COMMAND_FIRMWARE_FRAME,
                 *page,
                 111
@@ -67,7 +67,7 @@ class MyrtDeskBacklight(MyrtDeskDomain):
                 raise Exception()
             progress += percent
             report_progress(progress)
-        (_, success) = await self._send_command([COMMAND_FIRMWARE_APPLY])
+        (_, success) = await self.send_command([COMMAND_FIRMWARE_APPLY])
         if not success:
             raise Exception()
         host = self._transport.host
@@ -78,7 +78,7 @@ class MyrtDeskBacklight(MyrtDeskDomain):
 
     async def set_color(self, color: RGBColor):
         """Set backlight rgb color"""
-        (_, success) = await self._send_command([COMMAND_SET_COLOR, *color])
+        (_, success) = await self.send_command([COMMAND_SET_COLOR, *color])
         return success
 
     async def start_ambient(self, zones: List[AmbientZone]) -> bool:
@@ -87,7 +87,12 @@ class MyrtDeskBacklight(MyrtDeskDomain):
         for zone in zones:
             payload.append(zone[0])
             payload.append(zone[1])
-        (_, success) = await self._send_command([COMMAND_SET_EFFECT, Effect.AMBIENT, len(zones), *payload])
+        (_, success) = await self.send_command([
+            COMMAND_SET_EFFECT,
+            Effect.AMBIENT,
+            len(zones),
+            *payload
+        ])
         return success
 
     async def set_ambient_colors(self, colors: List[RGBColor]) -> bool:
@@ -97,24 +102,24 @@ class MyrtDeskBacklight(MyrtDeskDomain):
             payload.append(color[0])
             payload.append(color[1])
             payload.append(color[2])
-        await self._send_command([COMMAND_SET_EFFECT_DATA, *payload])
+        await self.send_command([COMMAND_SET_EFFECT_DATA, *payload])
 
     async def set_white(self, warmness: int) -> bool:
         """Set backlight white color"""
-        (_, success) = await self._send_command([COMMAND_SET_WHITE, warmness])
+        (_, success) = await self.send_command([COMMAND_SET_WHITE, warmness])
         return success
 
     async def set_brightness(self, brightness: int) -> bool:
         """Set backlight brightness"""
-        (_, success) = await self._send_command([COMMAND_SET_BRIGHTNESS, brightness])
+        (_, success) = await self.send_command([COMMAND_SET_BRIGHTNESS, brightness])
         return success
 
     async def set_effect(self, brightness: int) -> bool:
         """Set backlight effect"""
-        (_, success) = await self._send_command([COMMAND_SET_EFFECT, brightness])
+        (_, success) = await self.send_command([COMMAND_SET_EFFECT, brightness])
         return success
 
     async def set_power(self, is_on: bool) -> bool:
         """Set backlight power state"""
-        (_, success) = await self._send_command([COMMAND_SET_POWER, 1 if is_on else 0])
+        (_, success) = await self.send_command([COMMAND_SET_POWER, 1 if is_on else 0])
         return success

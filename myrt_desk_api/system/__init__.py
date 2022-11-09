@@ -19,7 +19,7 @@ class MyrtDeskSystem(MyrtDeskDomain):
 
     async def reboot(self) -> Union[None, int]:
         """Get current height"""
-        await self._send_command([COMMAND_REBOOT])
+        await self.send_command([COMMAND_REBOOT])
         return
 
     async def update_firmware(self, file: bytes, reporter: Callable):

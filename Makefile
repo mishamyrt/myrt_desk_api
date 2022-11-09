@@ -9,24 +9,24 @@ SRC := \
 	$(wildcard myrt_desk_api/*/*.py) \
 	$(wildcard myrt_desk_api/*.py)
 
-publish: dist/
+publish: clean dist/
 	$(VENV) python3 -m twine upload --repository pypi dist/*
 
-install: dist/
+install: clean dist/
 	$(VENV) pip3 install .
 
 install-system: dist/
 	pip3 install .
 
 clean:
-	rm -rf *.egg-info
+	rm -f *.egg-info
 	rm -rf build
 	rm -rf dist
 
 configure: $(VENV_PATH)
 
 lint:
-	$(VENV) pylint ./dohome_api
+	$(VENV) pylint ./myrt_desk_api ./bin
 
 dist/: $(VENV_PATH) $(SRC)
 	$(VENV) python3 setup.py sdist bdist_wheel
