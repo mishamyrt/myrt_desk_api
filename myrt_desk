@@ -10,12 +10,18 @@ parser.add_argument('--debug', default=False, action='store_true',
 parser.add_argument('-d', '--host', default=None,  action='store_true',
     help='MyrtDesk host address')
 subparsers = parser.add_subparsers(help='List of commands', dest="command")
-subparsers.required = True
+subparsers.default = None
 # A color command
 color_parser = subparsers.add_parser(
     'color', help='Set backlight color')
 color_parser.add_argument(
     'hex_color', action='store', help='Hexadecimal color value')
+reboot_parser = subparsers.add_parser(
+    'reboot', help='Reboot desk')
+effect_parser = subparsers.add_parser(
+    'effect', help='Set backlight effect')
+effect_parser.add_argument(
+    'effect', action='store', type=int, help='Effect index')
 # A white command
 white_parser = subparsers.add_parser(
     'white', help='Set backlight color')
@@ -64,7 +70,10 @@ async def main():
     else:
         host = args.host
     desk = MyrtDesk(host)
-    if args.command == 'color':
+    if args.command is None:
+        state = await desk.backlight.read_state()
+        print(state)
+    elif args.command == 'color':
         hex_color = args.hex_color
         if len(hex_color) == 7:
             hex_color = hex_color[1:]
@@ -74,6 +83,10 @@ async def main():
         if args.warmness > 255:
             raise Exception("Wrong byte value")
         await desk.backlight.set_white(args.warmness)
+    elif args.command == 'reboot':
+        await desk.system.reboot()
+    elif args.command == 'effect':
+        await desk.backlight.set_effect(args.effect)
     elif args.command == 'flash-backlight':
         print("Updating desk's backlight firmware...")
         with open(args.path, mode="rb") as file:
