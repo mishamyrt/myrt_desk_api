@@ -16,7 +16,7 @@ from .constants import (
     COMMAND_FIRMWARE_RECEIVE,
     COMMAND_FIRMWARE_FRAME,
     COMMAND_FIRMWARE_APPLY,
-    COMMAND_TURN_OFF,
+    COMMAND_SET_POWER,
     COMMAND_READ_STATE
 )
 
@@ -112,4 +112,9 @@ class MyrtDeskBacklight(MyrtDeskDomain):
     async def set_effect(self, brightness: int) -> bool:
         """Set backlight effect"""
         (_, success) = await self._send_command([COMMAND_SET_EFFECT, brightness])
+        return success
+
+    async def set_power(self, is_on: bool) -> bool:
+        """Set backlight power state"""
+        (_, success) = await self._send_command([COMMAND_SET_POWER, 1 if is_on else 0])
         return success
