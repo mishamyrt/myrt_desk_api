@@ -1,6 +1,6 @@
 """MyrtDesk controller"""
 from .transport import MyrtDeskTransport
-from .backlight import MyrtDeskBacklight
+from .backlight import MyrtDeskBacklight, Effect
 from .system import MyrtDeskSystem
 from .legs import MyrtDeskLegs
 from .discover import discover
