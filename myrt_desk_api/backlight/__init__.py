@@ -10,6 +10,7 @@ from .constants import (
     COMMAND_SET_COLOR,
     COMMAND_SET_WHITE,
     COMMAND_SET_EFFECT,
+    COMMAND_SET_EFFECT_DATA,
     COMMAND_SET_BRIGHTNESS,
     COMMAND_FIRMWARE_RECEIVE,
     COMMAND_FIRMWARE_FRAME,
@@ -19,6 +20,7 @@ from .constants import (
 )
 
 RGBColor = Tuple[int, int, int]
+AmbientZone = Tuple[int, int]
 
 class MyrtDeskBacklight(MyrtDeskDomain):
     """MyrtDesk backlight controller constructor"""
@@ -73,11 +75,24 @@ class MyrtDeskBacklight(MyrtDeskDomain):
         await wait_for(host_up(host), 10)
         report_progress(100)
 
-    # pylint: disable-next=invalid-name
     async def set_color(self, color: RGBColor):
         """Set backlight rgb color"""
         (_, success) = await self._send_command([COMMAND_SET_COLOR, *color])
         return success
+
+    async def start_ambient(self, zones: List[AmbientZone]) -> bool:
+        """Start ambient effect with zones"""
+        (_, success) = await self._send_command([COMMAND_SET_EFFECT, 3, len(zones), []])
+        return success
+
+    async def set_ambient_colors(self, colors: List[RGBColor]) -> bool:
+        """Sets ambient effect colors"""
+        payload = []
+        for color in colors:
+            payload.append(color[0])
+            payload.append(color[1])
+            payload.append(color[2])
+        await self._send_command([COMMAND_SET_EFFECT_DATA, *payload])
 
     async def set_white(self, warmness: int) -> bool:
         """Set backlight white color"""
