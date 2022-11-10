@@ -8,6 +8,7 @@ from .constants import (
     DOMAIN_SYSTEM,
     COMMAND_READ,
     COMMAND_REBOOT,
+    COMMAND_LOGS
 )
 
 RGBColor = Tuple[int, int, int]
@@ -29,3 +30,9 @@ class MyrtDeskSystem(MyrtDeskDomain):
                 reporter(val)
         # pylint: disable-next=protected-access
         await update_ota(self._transport._host, 6100, file, report_progress)
+
+    async def read_logs(self, handle_logs: Callable) -> Union[None, int]:
+        """Read logs from device while discontinued"""
+        await self.send_command([COMMAND_LOGS])
+        await self._transport.listen(handle_logs)
+        return

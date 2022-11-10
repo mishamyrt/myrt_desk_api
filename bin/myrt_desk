@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 from asyncio import run
 from os import get_terminal_size
+from datetime import datetime
 from myrt_desk_api import discover, MyrtDesk
 
 parser = ArgumentParser()
@@ -51,6 +52,8 @@ height_parser.add_argument(
     required=False, default=None, type=int,
     action='store', help='Set new height in millimeters', dest="height"
 )
+subparsers.add_parser(
+    'logs', help='Reads logs from device')
 
 def _print_progress (iteration):
     prefix = ''
@@ -124,5 +127,10 @@ async def main():
             print(await desk.legs.get_height())
         else:
             await desk.legs.set_height(args.height)
+    elif args.command == 'logs':
+        def handle_logs(message: str):
+            print(f"{datetime.now()}: [Desk]: {message}")
+        print("Listening for logs from desk")
+        await desk.system.read_logs(handle_logs)
 if __name__ == '__main__':
     run(main())

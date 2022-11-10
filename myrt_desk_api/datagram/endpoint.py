@@ -4,6 +4,7 @@ from asyncio import (
     DatagramTransport,
     get_event_loop
 )
+from typing import Tuple
 from warnings import warn
 from .client import DatagramClient
 
@@ -11,11 +12,12 @@ class Endpoint(DatagramClient):
     """High-level interface for UDP remote enpoints.
     It is initialized with an optional queue size for the incoming datagrams.
     """
+    addr: Tuple[str, int] = ("", 0)
 
     # pylint: disable-next=arguments-differ
     def send(self, data):
         """Send a datagram to the remote host."""
-        super().send(data, None)
+        super().send(data, self.addr)
 
     async def receive(self):
         """
@@ -62,7 +64,8 @@ async def open_endpoint(host: str, port: str, queue_size=0, **kwargs) -> Endpoin
     """Open and return a datagram endpoint."""
     loop = get_event_loop()
     endpoint = Endpoint(queue_size)
-    kwargs['remote_addr'] = host, port
+    endpoint.addr = host, port
+    kwargs['local_addr'] = "0.0.0.0", 11022
     kwargs['protocol_factory'] = lambda: DatagramEndpointProtocol(endpoint)
     await loop.create_datagram_endpoint(**kwargs)
     return endpoint

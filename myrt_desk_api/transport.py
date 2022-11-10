@@ -1,6 +1,6 @@
 """MyrtDesk API transport"""
 
-from typing import Union
+from typing import Union, Callable, List
 from warnings import warn
 from .datagram import open_endpoint, Endpoint
 from .constants import API_PORT
@@ -24,8 +24,14 @@ class MyrtDeskTransport():
         """Indicates whether the transport is connected."""
         return not (self._endpoint is None or self._endpoint.closed)
 
-    async def send_request(self, request: list) -> (list, bool):
-        """Sends request to MyrtDesk"""
+    async def listen(self, handler: Callable):
+        """Listens for incoming messages"""
+        while True:
+            message = list(await self._endpoint.receive())
+            handler(bytes(message).decode())
+
+    async def send_command(self, request: list) -> None:
+        """Sends command to MyrtDesk"""
         if not self.connected:
             await self._connect()
         request_body = []
@@ -40,6 +46,10 @@ class MyrtDeskTransport():
         self._endpoint.send(
             bytes(request_body)
         )
+
+    async def send_request(self, request: List[int]) -> (List[int], bool):
+        """Sends request to MyrtDesk"""
+        await self.send_command(request)
         response = list(await self._endpoint.receive())
         success = True
         if len(response) != response[0] + 1:
@@ -47,7 +57,7 @@ class MyrtDeskTransport():
             success = False
         elif len(response) == 4 and response[3] != 0:
             warn(f'Error recieved: {response}')
-            warn(f'Request: {request_body}')
+            warn(f'Request: {request}')
             success = False
         return (response, success)
 
