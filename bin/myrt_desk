@@ -43,6 +43,13 @@ subparsers.add_parser(
     'on', help='Enables backlight')
 subparsers.add_parser(
     'off', help='Disables backlight')
+height_parser = subparsers.add_parser(
+    'height', help='Read desk\'s height')
+height_parser.add_argument(
+    '--set',
+    required=False, default=None, type=int,
+    action='store', help='Set new height in millimeters', dest="height"
+)
 
 def _print_progress (iteration):
     prefix = ''
@@ -110,5 +117,10 @@ async def main():
         await desk.backlight.set_power(False)
     elif args.command == 'on':
         await desk.backlight.set_power(True)
+    elif args.command == 'height':
+        if args.height is None:
+            print(await desk.legs.get_height())
+        else:
+            await desk.legs.set_height(args.height)
 if __name__ == '__main__':
     run(main())
