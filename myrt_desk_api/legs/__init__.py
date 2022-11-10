@@ -7,6 +7,7 @@ from .constants import (
     DOMAIN_LEGS,
     COMMAND_READ_HEIGHT,
     COMMAND_SET_HEIGHT,
+    COMMAND_GET_SENSOR_LENGTH
 )
 
 RGBColor = Tuple[int, int, int]
@@ -31,3 +32,11 @@ class MyrtDeskLegs(MyrtDeskDomain):
             low_byte(value),
         ])
         return success
+
+    async def get_sensor_data(self) ->  Union[None, int]:
+        """Get current raw distance from sensor"""
+        (data, success) = await self.send_command([COMMAND_GET_SENSOR_LENGTH])
+        if not success:
+            return 0
+        value = (data[3] << 8) + data[4]
+        return value
