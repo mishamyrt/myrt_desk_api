@@ -54,6 +54,8 @@ height_parser.add_argument(
 )
 subparsers.add_parser(
     'logs', help='Reads logs from device')
+subparsers.add_parser(
+    'calibrate', help='Calibrate desk height')
 
 def _print_progress (iteration: float) -> None:
     total = 100.0
@@ -130,5 +132,7 @@ async def main():
             print(f"{datetime.now()}: [Desk]: {message}")
         print("Listening for logs from desk")
         await desk.system.read_logs(handle_logs)
+    elif args.command == 'calibrate':
+        await desk.legs.caibrate()
 if __name__ == '__main__':
     run(main())

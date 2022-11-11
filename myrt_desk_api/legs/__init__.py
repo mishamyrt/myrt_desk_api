@@ -7,7 +7,8 @@ from .constants import (
     DOMAIN_LEGS,
     COMMAND_READ_HEIGHT,
     COMMAND_SET_HEIGHT,
-    COMMAND_GET_SENSOR_LENGTH
+    COMMAND_GET_SENSOR_LENGTH,
+    COMMAND_CALIBRATE
 )
 
 RGBColor = Tuple[int, int, int]
@@ -40,3 +41,8 @@ class MyrtDeskLegs(MyrtDeskDomain):
             return 0
         value = (data[3] << 8) + data[4]
         return value
+
+    async def caibrate(self) -> bool:
+        """Starts desk legs calibration"""
+        (_, success) = await self.send_command([COMMAND_CALIBRATE])
+        return success
