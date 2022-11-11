@@ -27,8 +27,10 @@ class MyrtDeskTransport():
     async def listen(self, handler: Callable):
         """Listens for incoming messages"""
         while True:
-            message = list(await self._endpoint.receive())
-            handler(bytes(message).decode())
+            message = await self._endpoint.receive()
+            lines = message.decode().split('\n')
+            for line in lines:
+                handler(line)
 
     async def send_command(self, request: list) -> None:
         """Sends command to MyrtDesk"""

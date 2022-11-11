@@ -33,6 +33,6 @@ class MyrtDeskSystem(MyrtDeskDomain):
 
     async def read_logs(self, handle_logs: Callable) -> Union[None, int]:
         """Read logs from device while discontinued"""
-        await self.send_command([COMMAND_LOGS])
+        await self.send_command_raw([COMMAND_LOGS])
         await self._transport.listen(handle_logs)
         return
