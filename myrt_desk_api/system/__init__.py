@@ -1,6 +1,8 @@
 """MyrtDesk legs"""
 
+from asyncio import wait_for, exceptions
 from typing import List, Tuple, Union, Callable
+from ..ping import host_down, host_up
 from ..domain import MyrtDeskDomain
 from ..bytes import low_byte, high_byte
 from .ota import update_ota
@@ -18,10 +20,14 @@ class MyrtDeskSystem(MyrtDeskDomain):
 
     _domain_code = DOMAIN_SYSTEM
 
-    async def reboot(self) -> Union[None, int]:
+    async def reboot(self) -> None:
         """Get current height"""
-        await self.send_command([COMMAND_REBOOT])
-        return
+        try:
+            await wait_for(self.send_command([COMMAND_REBOOT]), 1.0)
+        except exceptions.TimeoutError:
+            host = self._transport.host
+            await wait_for(host_down(host), 2)
+            await wait_for(host_up(host), 2)
 
     async def update_firmware(self, file: bytes, reporter: Callable):
         """Updates controller firmware"""

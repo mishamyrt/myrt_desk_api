@@ -1,10 +1,10 @@
 """MyrtDesk backlight controller"""
 from asyncio import wait_for
 from typing import List, Tuple, Callable
+from ..ping import host_down, host_up
 from ..bytes import high_byte, low_byte
 from ..domain import MyrtDeskDomain
 from .firmware import Firmware
-from .ping import host_down, host_up
 from .effects import Effect
 from .constants import (
     DOMAIN_BACKLIGHT,

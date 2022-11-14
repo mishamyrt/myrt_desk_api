@@ -1,4 +1,4 @@
-"""Ping utility"""
+"""Ping utilities"""
 from os import system
 from asyncio import sleep
 
