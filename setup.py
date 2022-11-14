@@ -20,6 +20,8 @@ setuptools.setup(
         'myrt_desk_api.legs',
         'myrt_desk_api.system',
         'myrt_desk_api.datagram',
+        'myrt_desk_api.bin.commands',
+        'myrt_desk_api.bin',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
