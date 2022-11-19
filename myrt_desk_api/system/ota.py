@@ -21,7 +21,6 @@ async def _check_status(reader: StreamReader):
 
 async def update_ota(host: str, port: int, file: bytes, report: Callable) -> bool:
     """Sends espota invitation"""
-    _offset = 0
     stop_request = Event()
 
     def next_chunk(offset) -> bytes:

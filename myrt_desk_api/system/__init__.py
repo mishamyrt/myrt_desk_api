@@ -1,16 +1,15 @@
 """MyrtDesk legs"""
 
 from asyncio import wait_for, exceptions
-from typing import List, Tuple, Union, Callable
+from typing import Tuple, Union, Callable
 from ..ping import host_down, host_up
 from ..domain import MyrtDeskDomain
-from ..bytes import low_byte, high_byte
 from .ota import update_ota
 from .constants import (
     DOMAIN_SYSTEM,
-    COMMAND_READ,
     COMMAND_REBOOT,
-    COMMAND_LOGS
+    COMMAND_LOGS,
+    COMMAND_FREE_HEAP
 )
 
 RGBColor = Tuple[int, int, int]
@@ -36,6 +35,13 @@ class MyrtDeskSystem(MyrtDeskDomain):
                 reporter(val)
         # pylint: disable-next=protected-access
         await update_ota(self._transport._host, 6100, file, report_progress)
+
+    async def read_heap(self) -> Union[int, None]:
+        """Read device free heap"""
+        (response, success) = await self.send_command([COMMAND_FREE_HEAP])
+        if not success:
+            return None
+        return (response[3] << 8) + response[4]
 
     async def read_logs(self, handle_logs: Callable) -> Union[None, int]:
         """Read logs from device while discontinued"""

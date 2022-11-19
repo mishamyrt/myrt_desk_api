@@ -21,7 +21,12 @@ async def handle_flash(args, desk: MyrtDesk):
     print("Updating desk's legs firmware...")
     with open(args.path, mode="rb") as file:
         contents = file.read()
-        await desk.backlight.update_firmware(contents, print_progress)
+        await desk.system.update_firmware(contents, print_progress)
+
+async def handle_heap(_, desk: MyrtDesk):
+    """Handles a heap command"""
+    free = await desk.system.read_heap()
+    print(f"Free heap: {free} bytes")
 
 def system_commands(subparser):
     """Appends system commands"""
@@ -34,8 +39,11 @@ def system_commands(subparser):
         help='Update desk\'s controller firmware')
     flash_controller_parser.add_argument('path',
         action='store', help='The path to the firmware to be installed')
+    # A heap command
+    subparser.add_parser('heap', help='Reads device free heap')
     return [
         ('reboot', handle_reboot),
         ('logs', handle_logs),
-        ('flash-controller', handle_flash)
+        ('flash-controller', handle_flash),
+        ('heap', handle_heap),
     ]
