@@ -1,12 +1,12 @@
 """MyrtDesk discovery helper"""
 from typing import Union
-from asyncio import exceptions
+from asyncio import exceptions, wait_for, sleep
 from socket import getfqdn, gethostname, gethostbyname_ex
-from .datagram import open_broadcast
+from .datagram import open_broadcast, open_endpoint, Endpoint
 from .system.constants import DOMAIN_SYSTEM, COMMAND_PING
 from .constants import API_PORT
 
-__all__=['discover']
+__all__=['discover', 'is_desk']
 
 PING_REQUEST = bytes([
     2,
@@ -54,3 +54,22 @@ async def discover(host: str = None) -> Union[None, str]:
         except (exceptions.TimeoutError, IndexError):
             attempts -= 1
     return None
+
+async def is_desk(host: str, attempts: int = 2) -> bool:
+    """Checks if host is MyrtDesk"""
+    endpoint: Endpoint = None
+    async def close():
+        if endpoint is not None:
+            endpoint.close()
+            await sleep(0.1)
+    while attempts != 0:
+        try:
+            endpoint = await open_endpoint(host, API_PORT)
+            endpoint.send(PING_REQUEST)
+            await wait_for(endpoint.receive(), 0.25)
+            await close()
+            return True
+        except exceptions.TimeoutError:
+            await close()
+            attempts -= 1
+    return False

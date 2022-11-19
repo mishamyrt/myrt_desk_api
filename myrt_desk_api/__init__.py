@@ -1,11 +1,13 @@
 """MyrtDesk controller"""
 from .transport import MyrtDeskTransport
+# trunk-ignore(flake8/F401)
+from .discover import discover, is_desk
+# trunk-ignore(flake8/F401)
 from .backlight import MyrtDeskBacklight, Effect
 from .system import MyrtDeskSystem
 from .legs import MyrtDeskLegs
-from .discover import discover
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 class MyrtDesk:
     """MyrtDesk controller entity"""
