@@ -6,6 +6,7 @@ from asyncio import (
 )
 from typing import Tuple
 from warnings import warn
+from random import randint
 from .client import DatagramClient
 
 class Endpoint(DatagramClient):
@@ -65,7 +66,7 @@ async def open_endpoint(host: str, port: str, queue_size=0, **kwargs) -> Endpoin
     loop = get_event_loop()
     endpoint = Endpoint(queue_size)
     endpoint.addr = host, port
-    kwargs['local_addr'] = "0.0.0.0", 11022
+    kwargs['local_addr'] = "0.0.0.0", randint(100, 65535)
     kwargs['protocol_factory'] = lambda: DatagramEndpointProtocol(endpoint)
     await loop.create_datagram_endpoint(**kwargs)
     return endpoint
