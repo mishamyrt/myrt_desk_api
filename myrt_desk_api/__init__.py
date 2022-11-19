@@ -7,7 +7,7 @@ from .backlight import MyrtDeskBacklight, Effect
 from .system import MyrtDeskSystem
 from .legs import MyrtDeskLegs
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 class MyrtDesk:
     """MyrtDesk controller entity"""
