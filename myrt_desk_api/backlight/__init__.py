@@ -89,7 +89,7 @@ class MyrtDeskBacklight(MyrtDeskDomain):
             payload.append(zone[1])
         (_, success) = await self.send_command([
             COMMAND_SET_EFFECT,
-            Effect.AMBIENT,
+            Effect.AMBIENT.value,
             len(zones),
             *payload
         ])
