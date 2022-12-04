@@ -18,6 +18,16 @@ async def handle_white(args, desk: MyrtDesk):
     assert_byte(args.warmness)
     await desk.backlight.set_white(args.warmness)
 
+async def handle_brightness(args, desk: MyrtDesk):
+    """Handles a brightness command"""
+    assert_byte(args.brightness)
+    await desk.backlight.set_brightness(args.brightness)
+
+async def handle_state(_, desk: MyrtDesk):
+    """Handles a state command"""
+    state = await desk.backlight.read_state()
+    print(state)
+
 async def handle_effect(args, desk: MyrtDesk):
     """Handles an effect command"""
     await desk.backlight.set_effect(args.effect)
@@ -55,13 +65,20 @@ def backlight_commands(subparser):
     # A power commands
     subparser.add_parser('on', help='Enables backlight')
     subparser.add_parser('off', help='Disables backlight')
+    # A state command
+    subparser.add_parser('state', help='Prints backlight state')
+     # A brightness command
+    firmware_parser = subparser.add_parser('brightness', help='Set backlight brightness')
+    firmware_parser.add_argument('brightness', action='store', type=int, help='0-255 brightness value')
     return [
         ('color', handle_color),
         ('white', handle_white),
         ('effect', handle_effect),
         ('flash-backlight', handle_flash),
         ('on', handle_on),
-        ('off', handle_off)
+        ('off', handle_off),
+        ('brightness', handle_brightness),
+        ('state', handle_state)
     ]
 
 def _hex_to_rgb(val):
