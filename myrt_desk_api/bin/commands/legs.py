@@ -1,32 +1,21 @@
 """Legs CLI commands"""
+from arrrgs import command, arg
 from ... import MyrtDesk
 
-__all__ = ['legs_commands']
-
-async def handle_height(args, desk: MyrtDesk):
-    """Handles a height commands"""
+@command(
+    arg('--set', required=False, default=None, type=int,
+        help='Set new height in millimeters', dest="height")
+)
+async def height(args, desk: MyrtDesk):
+    """Controlls desk's height"""
     if args.height is None:
-        height = await desk.legs.get_height()
-        print(f"Current height is {height} mm.")
+        current_height = await desk.legs.get_height()
+        print(f"Current height is {current_height} mm.")
     else:
         await desk.legs.set_height(args.height)
 
-async def handle_calibrate(_, desk: MyrtDesk):
-    """Handles a calibrate command"""
+@command()
+async def calibrate(_, desk: MyrtDesk):
+    """Calibrates desk's height sensor"""
     await desk.legs.caibrate()
     print('Calibration is started')
-
-def legs_commands(subparser):
-    """Appends system commands"""
-    # A height commands
-    height_parser = subparser.add_parser('height', help='Read desk\'s height')
-    height_parser.add_argument('--set',
-        required=False, default=None, type=int,
-        help='Set new height in millimeters', dest="height"
-    )
-    # A calibrate command
-    subparser.add_parser('calibrate', help='Calibrate desk height')
-    return [
-        ('height', handle_height),
-        ('calibrate', handle_calibrate)
-    ]
