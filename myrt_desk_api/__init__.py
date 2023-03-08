@@ -4,7 +4,7 @@ from .legs import MyrtDeskLegs
 from .system import MyrtDeskSystem
 from .transport import Stream
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 
 class MyrtDesk:
     """MyrtDesk controller entity"""
