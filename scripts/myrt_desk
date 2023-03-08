@@ -1,0 +1,128 @@
+#!/usr/bin/env python
+# pylint: skip-file
+"""MyrtDesk API control app"""
+import asyncio
+from datetime import datetime
+
+from arrrgs import arg, async_run, command, global_args, no_command
+
+from myrt_desk_api import MyrtDesk
+from myrt_desk_api.cli import assert_byte, hex_to_rgb, print_progress
+
+global_args(
+    arg("--host", "-d",
+            default='MyrtDesk.local',
+            action="store_true",
+            dest="host",
+            help="MyrtDesk host address")
+)
+
+# Backlight commands
+
+@no_command()
+async def state(_, desk: MyrtDesk):
+    """Prints backlight state"""
+    state = await desk.backlight.read_state()
+    print(state)
+
+@command(arg('hex_color', help='Hexadecimal color value'))
+async def color(args, desk: MyrtDesk):
+    """Handles a color command"""
+    hex_color = args.hex_color
+    if len(hex_color) == 7:
+        hex_color = hex_color[1:]
+    await desk.backlight.set_color(hex_to_rgb(hex_color))
+
+@command(arg('warmness', help='0-255 warmness level', type=int))
+async def white(args, desk: MyrtDesk):
+    """Handles a white command"""
+    assert_byte(args.warmness)
+    await desk.backlight.set_white(args.warmness)
+
+@command(arg('brightness', help='0-255 brightness level', type=int))
+async def brightness(args, desk: MyrtDesk):
+    """Handles a brightness command"""
+    assert_byte(args.brightness)
+    await desk.backlight.set_brightness(args.brightness)
+
+@command(arg('effect', help='Effect index', type=int))
+async def effect(args, desk: MyrtDesk):
+    """Handles an effect command"""
+    await desk.backlight.set_effect(args.effect)
+
+@command()
+async def on(_, desk: MyrtDesk):
+    """Turns backlight on"""
+    await desk.backlight.set_power(True)
+
+@command()
+async def off(_, desk: MyrtDesk):
+    """Turns backlight off"""
+    await desk.backlight.set_power(False)
+
+@command()
+async def flash_backlight(args, desk: MyrtDesk):
+    """Handles a backlight-flash command"""
+    print("Updating desk's backlight firmware...")
+    with open(args.path, mode="rb") as file:
+        contents = file.read()
+        await desk.backlight.update_firmware(contents, print_progress)
+
+# Legs commands
+
+@command(
+    arg('height', nargs='?', default=None, type=int,
+        help="New height in millimeters")
+)
+async def height(args, desk: MyrtDesk):
+    """Controls desk's height"""
+    if args.height is None:
+        current_height = await desk.legs.get_height()
+        print(f"Current height is {current_height} mm.")
+    else:
+        await desk.legs.set_height(args.height)
+
+@command()
+async def calibrate(_, desk: MyrtDesk):
+    """Calibrates desk's height sensor"""
+    await desk.legs.calibrate()
+    print('Calibration is started')
+
+# System commands
+
+@command()
+async def reboot(_, desk: MyrtDesk):
+    """Handles a reboot command"""
+    await desk.system.reboot()
+
+@command()
+async def logs(_, desk: MyrtDesk):
+    """Handles a logs command"""
+    def handle_log_line(message: str):
+        print(f"{datetime.now()}: {message}")
+    print("Listening for logs from desk")
+    await desk.system.read_logs(handle_log_line)
+
+@command()
+async def flash_controller(args, desk: MyrtDesk):
+    """Handles a flash-controller command"""
+    print("Updating desk's legs firmware...")
+    with open(args.path, mode="rb") as file:
+        contents = file.read()
+        await desk.system.update_firmware(contents, print_progress)
+
+@command()
+async def heap(_, desk: MyrtDesk):
+    """Handles a heap command"""
+    free = await desk.system.read_heap()
+    print(f"Free heap: {free} bytes")
+
+# Script environment setup
+
+async def prepare(args):
+    """Creates app context"""
+    return args, MyrtDesk(args.host)
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.gather(async_run(prepare=prepare)))

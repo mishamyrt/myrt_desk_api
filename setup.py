@@ -19,15 +19,18 @@ setuptools.setup(
         'myrt_desk_api.backlight',
         'myrt_desk_api.legs',
         'myrt_desk_api.system',
-        'myrt_desk_api.datagram',
-        'myrt_desk_api.bin.commands',
-        'myrt_desk_api.bin',
+        'myrt_desk_api.transport',
+        'myrt_desk_api.cli',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License"
     ],
+    install_requires=[
+        'asyncio-dgram==2.1.2',
+        'arrrgs==0.0.5'
+    ],
     python_requires='>=3.7',
     package_dir={'':'.'},
-    scripts=['bin/myrt_desk']
+    scripts=['scripts/myrt_desk']
 )

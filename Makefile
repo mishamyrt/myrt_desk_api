@@ -14,7 +14,7 @@ publish: clean dist/
 	$(VENV) python3 -m twine upload --repository pypi dist/* -umishamyrt
 
 install: clean dist/
-	$(VENV) pip3 install .
+	$(VENV) pip install .
 
 install-system: dist/
 	pip3 install .

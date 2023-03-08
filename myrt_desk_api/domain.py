@@ -1,27 +1,25 @@
 """MyrtDesk domain"""
+from abc import ABC
 from typing import List
-from .transport import MyrtDeskTransport
+
+from .transport import Stream
 
 
-class MyrtDeskDomain:
-    """MyrtDesk domain prototype"""
-    _transport: MyrtDeskTransport = None
-    _domain_code: int = 0
+class DeskDomain(ABC):
+    """MyrtDesk domain base class"""
+    code: int = 0
 
-    def __init__(self, transport: MyrtDeskTransport):
-        self._transport = transport
+    _stream: Stream
 
-    @property
-    def domain_code(self) -> int:
-        """Current domain code"""
-        return self._domain_code
-
-    async def send_command_raw(self, payload: list) -> List[int]:
-        """Sends raw command to MyrtDesk"""
-        resp = await self._transport.send_command([self._domain_code, *payload])
-        return resp
+    def __init__(self, stream: Stream):
+        self._stream = stream
 
     async def send_command(self, payload: list) -> List[int]:
+        """Sends raw command to MyrtDesk"""
+        resp = await self._stream.send_command([self.code, *payload])
+        return resp
+
+    async def send_request(self, payload: list) -> List[int]:
         """Sends command to MyrtDesk"""
-        resp = await self._transport.send_request([self._domain_code, *payload])
+        resp = await self._stream.send_request([self.code, *payload])
         return resp

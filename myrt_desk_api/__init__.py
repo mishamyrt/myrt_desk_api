@@ -1,26 +1,24 @@
 """MyrtDesk controller"""
-from .transport import MyrtDeskTransport
-# trunk-ignore(flake8/F401)
-from .discover import discover, is_desk
-# trunk-ignore(flake8/F401)
-from .backlight import MyrtDeskBacklight, Effect
-from .system import MyrtDeskSystem
+from .backlight import Effect, MyrtDeskBacklight
 from .legs import MyrtDeskLegs
+from .system import MyrtDeskSystem
+from .transport import Stream
 
 __version__ = "0.1.2"
 
 class MyrtDesk:
     """MyrtDesk controller entity"""
-    _transport: MyrtDeskTransport
+    _stream: Stream
     _backlight: MyrtDeskBacklight
     _system: MyrtDeskSystem
     _legs: MyrtDeskLegs
 
-    def __init__(self, host: str):
-        self._transport = MyrtDeskTransport(host)
-        self._backlight = MyrtDeskBacklight(self._transport)
-        self._legs = MyrtDeskLegs(self._transport)
-        self._system = MyrtDeskSystem(self._transport)
+    def __init__(self, host="MyrtDesk.local"):
+        stream = Stream(host)
+        self._stream = stream
+        self._backlight = MyrtDeskBacklight(stream)
+        self._legs = MyrtDeskLegs(stream)
+        self._system = MyrtDeskSystem(stream)
 
     @property
     def backlight(self) -> MyrtDeskBacklight:

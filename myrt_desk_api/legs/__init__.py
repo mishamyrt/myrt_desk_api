@@ -1,33 +1,34 @@
 """MyrtDesk legs"""
 
-from typing import List, Tuple, Union
-from ..domain import MyrtDeskDomain
-from ..bytes import low_byte, high_byte
+from typing import Tuple, Union
+
+from myrt_desk_api.domain import DeskDomain
+from myrt_desk_api.transport import from_byte_pair, high_byte, low_byte
+
 from .constants import (
-    DOMAIN_LEGS,
+    COMMAND_CALIBRATE,
+    COMMAND_GET_SENSOR_LENGTH,
     COMMAND_READ_HEIGHT,
     COMMAND_SET_HEIGHT,
-    COMMAND_GET_SENSOR_LENGTH,
-    COMMAND_CALIBRATE
+    DOMAIN_LEGS,
 )
 
-RGBColor = Tuple[int, int, int]
 
-class MyrtDeskLegs(MyrtDeskDomain):
+class MyrtDeskLegs(DeskDomain):
     """MyrtDesk legs controller constructor"""
 
-    _domain_code = DOMAIN_LEGS
+    code = DOMAIN_LEGS
 
     async def get_height(self) -> Union[None, int]:
         """Get current height"""
-        (response, success) = await self.send_command([COMMAND_READ_HEIGHT])
+        (response, success) = await self.send_request([COMMAND_READ_HEIGHT])
         if not success:
             return None
-        return (response[3] << 8) + response[4]
+        return from_byte_pair(response[3], response[4])
 
     async def set_height(self, value: int) -> bool:
         """Get current height"""
-        (_, success) = await self.send_command([
+        (_, success) = await self.send_request([
             COMMAND_SET_HEIGHT,
             high_byte(value),
             low_byte(value),
@@ -36,13 +37,12 @@ class MyrtDeskLegs(MyrtDeskDomain):
 
     async def get_sensor_data(self) ->  Union[None, int]:
         """Get current raw distance from sensor"""
-        (data, success) = await self.send_command([COMMAND_GET_SENSOR_LENGTH])
+        (data, success) = await self.send_request([COMMAND_GET_SENSOR_LENGTH])
         if not success:
             return 0
-        value = (data[3] << 8) + data[4]
-        return value
+        return from_byte_pair(data[3], data[4])
 
-    async def caibrate(self) -> bool:
+    async def calibrate(self) -> bool:
         """Starts desk legs calibration"""
-        (_, success) = await self.send_command([COMMAND_CALIBRATE])
+        (_, success) = await self.send_request([COMMAND_CALIBRATE])
         return success

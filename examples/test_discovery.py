@@ -9,6 +9,7 @@ async def _main():
     count = 0
     while count < ATTEMPTS:
         result = await discover()
+        print(result)
         is_avaliable = result is not None
         if is_avaliable:
             success += 1
