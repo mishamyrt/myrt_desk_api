@@ -12,5 +12,5 @@ async def invite(host: str, port: int, local_port: int, file: bytes) -> None:
     """Invite ESPota client"""
     message = _format_invitation(local_port, file)
     stream = await connect((host, port))
-    stream.send(message.encode())
+    await stream.send(message.encode())
     await stream.recv()

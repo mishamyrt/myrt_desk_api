@@ -60,7 +60,7 @@ async def off(_, desk: MyrtDesk):
     """Turns backlight off"""
     await desk.backlight.set_power(False)
 
-@command()
+@command(arg('path',  action='store', help='The path to the Intel HEX firmware'))
 async def flash_backlight(args, desk: MyrtDesk):
     """Handles a backlight-flash command"""
     print("Updating desk's backlight firmware...")
@@ -103,7 +103,7 @@ async def logs(_, desk: MyrtDesk):
     print("Listening for logs from desk")
     await desk.system.read_logs(handle_log_line)
 
-@command()
+@command(arg('path',  action='store', help='The path to the ESP32 bin firmware'))
 async def flash_controller(args, desk: MyrtDesk):
     """Handles a flash-controller command"""
     print("Updating desk's legs firmware...")
