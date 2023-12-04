@@ -28,7 +28,8 @@ setuptools.setup(
     ],
     install_requires=[
         'asyncio-dgram==2.1.2',
-        'arrrgs==0.0.5'
+        'arrrgs==0.0.5',
+        'typing-extensions==4.8.0'
     ],
     python_requires='>=3.7',
     package_dir={'':'.'},
