@@ -27,7 +27,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License"
     ],
     install_requires=[
-        'asyncio-dgram==2.1.2',
+        'asyncio-datagram==1.2.0',
         'arrrgs==3.1.0',
         'typing-extensions==4.8.0',
         'async_timeout==4.0.3'
