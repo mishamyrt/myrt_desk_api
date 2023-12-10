@@ -2,7 +2,8 @@
 
 VENV_PATH = ./venv
 VENV = . $(VENV_PATH)/bin/activate;
-VERSION := $(shell python3 -m myrt_desk_api.version)
+VERSION := 1.0.0
+# $(shell python3 -m myrt_desk_api.version)
 
 SRC := \
 	$(wildcard myrt_desk_api/*/*.py) \
@@ -14,10 +15,10 @@ publish: clean dist/
 	$(VENV) python3 -m twine upload --repository pypi dist/* -umishamyrt
 
 install: clean dist/
-	$(VENV) pip install .
+	$(VENV) pip install --disable-pip-version-check .
 
 install-system: dist/
-	pip3 install .
+	pip3 install --disable-pip-version-check .
 
 clean:
 	rm -rf *.egg-info
@@ -25,6 +26,8 @@ clean:
 	rm -rf dist
 
 configure: $(VENV_PATH)
+	make build
+	make install
 
 lint:
 	$(VENV) pylint ./myrt_desk_api ./bin
@@ -33,6 +36,7 @@ dist/: $(VENV_PATH) $(SRC)
 	echo "$(VERSION)" > ".version"
 	$(VENV) python3 setup.py sdist bdist_wheel
 
-$(VENV_PATH):
-	python3 -m venv $(VENV_PATH)
-	$(VENV) pip3 install -r requirements.txt
+$(VENV_PATH): requirements.txt
+	rm -rf "$(VENV_PATH)"
+	python3 -m venv "$(VENV_PATH)"
+	$(VENV) pip3 install --disable-pip-version-check -r requirements.txt

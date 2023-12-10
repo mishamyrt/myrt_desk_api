@@ -8,6 +8,9 @@ PAGE_SIZE = 128
 class FormatError(Exception):
     """Raised when the input format is not Intel HEX"""
 
+class FirmwareError(Exception):
+    """Returns when there is a problem during the firmware upgrade process"""
+
 class Firmware():
     """Converts Intel HEX formatted backlight firmware to AVRLord binary format"""
 
@@ -44,12 +47,12 @@ class Firmware():
 
     def _read_line(self) -> bool:
         if self._content[self._i] != ":":
-            warn(f"Wrong first symbol '{self._content[self._i]} at {self._i}'")
+            warn(f"Wrong first symbol '{self._content[self._i]} at {self._i}'", stacklevel=2)
             return False
         self._i += 1
         length = self._read_byte() * 2
         if self._i + 7 + length > len(self._content) or length > PAGE_SIZE:
-            warn("Wrong length")
+            warn("Wrong length", stacklevel=2)
             return False
         command_symbol = self._content[self._i + 5]
         if command_symbol == '0':
@@ -62,7 +65,7 @@ class Firmware():
             self._i += length + 9
             return True
         else:
-            warn(f"Unknown command symbol '{command_symbol}'")
+            warn(f"Unknown command symbol '{command_symbol}'", stacklevel=2)
             return False
         self._read_body(length)
         self._i += 4

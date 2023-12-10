@@ -1,17 +1,18 @@
-from typing import Optional, Tuple
-
 from datetime import datetime
+from typing import Optional
+
 from asyncio_datagram import DatagramClient, TransportClosed, connect
 
-DatagramPayload = list[int]
+from .types import Address, Datagram
+
 
 class PersistentDatagramStream:
-    _host_addr: Tuple[str, int]
-    _peer_addr: Optional[Tuple[str, int]] = None
+    _host_addr: Address
+    _peer_addr: Optional[Address] = None
     _stream: Optional[DatagramClient] = None
     _last_send_at = datetime.now()
 
-    def __init__(self, addr: Tuple[str, int]):
+    def __init__(self, addr: Address):
         self._host_addr = addr
 
     async def connect(self):
@@ -54,7 +55,7 @@ class PersistentDatagramStream:
     def connected(self):
         return self._stream is not None
 
-    async def read(self) -> Optional[DatagramPayload]:
+    async def read(self) -> Optional[Datagram]:
         if self._stream is None:
             return None
         try:
@@ -66,7 +67,7 @@ class PersistentDatagramStream:
             self._stream = None
         return None
 
-    async def send(self, payload: DatagramPayload) -> bool:
+    async def send(self, payload: Datagram) -> bool:
         if self._stream is None:
             return False
         try:

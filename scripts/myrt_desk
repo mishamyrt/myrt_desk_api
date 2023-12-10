@@ -4,7 +4,7 @@
 import asyncio
 from datetime import datetime
 
-from arrrgs import arg, async_run, command, global_args, no_command
+from arrrgs import arg, async_run, command, global_args
 
 from myrt_desk_api import MyrtDesk
 from myrt_desk_api.cli import assert_byte, hex_to_rgb, print_progress
@@ -19,7 +19,7 @@ global_args(
 
 # Backlight commands
 
-@no_command()
+@command(root=True)
 async def state(_, desk: MyrtDesk):
     """Prints backlight state"""
     state = await desk.backlight.read_state()
@@ -77,7 +77,7 @@ async def flash_backlight(args, desk: MyrtDesk):
 async def height(args, desk: MyrtDesk):
     """Controls desk's height"""
     if args.height is None:
-        current_height = await desk.legs.get_height()
+        current_height = await desk.legs.read_height()
         print(f"Current height is {current_height} mm.")
     else:
         await desk.legs.set_height(args.height)
@@ -88,28 +88,28 @@ async def calibrate(_, desk: MyrtDesk):
     await desk.legs.calibrate()
     print('Calibration is started')
 
-# System commands
+# # System commands
 
 @command()
 async def reboot(_, desk: MyrtDesk):
     """Handles a reboot command"""
     await desk.system.reboot()
 
-@command()
-async def logs(_, desk: MyrtDesk):
-    """Handles a logs command"""
-    def handle_log_line(message: str):
-        print(f"{datetime.now()}: {message}")
-    print("Listening for logs from desk")
-    await desk.system.read_logs(handle_log_line)
+# @command()
+# async def logs(_, desk: MyrtDesk):
+#     """Handles a logs command"""
+#     def handle_log_line(message: str):
+#         print(f"{datetime.now()}: {message}")
+#     print("Listening for logs from desk")
+#     await desk.system.read_logs(handle_log_line)
 
-@command(arg('path',  action='store', help='The path to the ESP32 bin firmware'))
-async def flash_controller(args, desk: MyrtDesk):
-    """Handles a flash-controller command"""
-    print("Updating desk's legs firmware...")
-    with open(args.path, mode="rb") as file:
-        contents = file.read()
-        await desk.system.update_firmware(contents, print_progress)
+# @command(arg('path',  action='store', help='The path to the ESP32 bin firmware'))
+# async def flash_controller(args, desk: MyrtDesk):
+#     """Handles a flash-controller command"""
+#     print("Updating desk's legs firmware...")
+#     with open(args.path, mode="rb") as file:
+#         contents = file.read()
+#         await desk.system.update_firmware(contents, print_progress)
 
 @command()
 async def heap(_, desk: MyrtDesk):
@@ -121,8 +121,18 @@ async def heap(_, desk: MyrtDesk):
 
 async def prepare(args):
     """Creates app context"""
-    return args, MyrtDesk(args.host)
+    desk = MyrtDesk(args.host)
+    await desk.connect()
+    return args, desk
+
+async def disconnect(args, desk: MyrtDesk):
+    """Disconnects desk"""
+    await desk.close()
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(async_run(prepare=prepare)))
+    loop.run_until_complete(asyncio.gather(
+        async_run(
+            prepare=prepare,
+            after=disconnect
+    )))

@@ -1,25 +1,37 @@
 """MyrtDesk domain"""
 from abc import ABC
-from typing import List
+from asyncio import AbstractEventLoop, Queue
 
-from .transport import Stream
+from .transport import SocketMessage, SocketStream
+
+
+class UnknownCommandError(Exception):
+    "Raised when domain receives unknown command"
+    pass
 
 
 class DeskDomain(ABC):
     """MyrtDesk domain base class"""
     code: int = 0
 
-    _stream: Stream
+    _stream: SocketStream
+    _loop: AbstractEventLoop
+    _messages: Queue[SocketMessage]
 
-    def __init__(self, stream: Stream):
+    def __init__(self, stream: SocketStream, loop: AbstractEventLoop):
         self._stream = stream
+        self._loop = loop
+        self._messages = Queue(loop=loop)
 
-    async def send_command(self, payload: list) -> List[int]:
-        """Sends raw command to MyrtDesk"""
-        resp = await self._stream.send_command([self.code, *payload])
-        return resp
-
-    async def send_request(self, payload: list) -> List[int]:
+    async def send(self, command, *args: int) -> bool:
         """Sends command to MyrtDesk"""
-        resp = await self._stream.send_request([self.code, *payload])
-        return resp
+        command = [self.code, command.value]
+        if len(args) > 0:
+            command.extend([*args])
+        return await self._stream.send(command)
+
+    async def put_message(self, message: SocketMessage):
+        await self._messages.put(message)
+
+    async def next_message(self) -> SocketMessage:
+        return await self._messages.get()
