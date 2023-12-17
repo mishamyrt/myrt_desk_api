@@ -21,7 +21,7 @@ class DeskDomain(ABC):
     def __init__(self, stream: SocketStream, loop: AbstractEventLoop):
         self._stream = stream
         self._loop = loop
-        self._messages = Queue(loop=loop)
+        self._messages = Queue()
 
     async def send(self, command, *args: int) -> bool:
         """Sends command to MyrtDesk"""
@@ -35,3 +35,7 @@ class DeskDomain(ABC):
 
     async def next_message(self) -> SocketMessage:
         return await self._messages.get()
+
+    def clear_message(self):
+        while not self._messages.empty():
+            self._messages.get_nowait()

@@ -3,7 +3,7 @@ from asyncio import Event, StreamReader, start_server, wait_for
 from hashlib import md5
 from typing import Callable
 
-from asyncio_dgram import connect
+from asyncio_datagram import connect
 
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 11311

@@ -12,7 +12,7 @@ async def main():
     loop = asyncio.get_event_loop()
     desk = MyrtDesk("MyrtDesk.local", loop=loop)
     await desk.connect()
-    await desk.backlight.set_power(True)
+    await desk.backlight.read_state()
     # await asyncio.sleep(5)
     await desk.close()
 

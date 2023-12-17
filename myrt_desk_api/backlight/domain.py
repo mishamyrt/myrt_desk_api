@@ -29,7 +29,7 @@ class MyrtDeskBacklight(DeskDomain):
         success = await self.request_state()
         if not success:
             return None
-        return await self.next_message()
+        return await self.next_state()
 
     async def next_state(self) -> State:
         message = await self.next_message()

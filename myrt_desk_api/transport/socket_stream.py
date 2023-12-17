@@ -27,8 +27,8 @@ class SocketStream():
 
     def __init__(self, addr: Tuple[str, int], loop=aio.AbstractEventLoop):
         self._stream = PersistentDatagramStream(addr)
-        self._data_messages_queue = aio.Queue(loop=loop)
-        self._status_messages_queue = aio.Queue(loop=loop)
+        self._data_messages_queue = aio.Queue()
+        self._status_messages_queue = aio.Queue()
         self._loop = loop
 
     @property
