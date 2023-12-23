@@ -73,11 +73,13 @@ class MyrtDeskBacklight(DeskDomain):
     ):
         """Flashes Intel HEX formatted firmware to backlight"""
         firmware = Firmware(hex_content.decode())
-        await self.send(
+        is_invited = await self.send(
             Command.FIRMWARE_RECEIVE,
             high_byte(firmware.size),
             low_byte(firmware.size)
         )
+        if not is_invited:
+            return
         def report_progress (val: float) -> None:
             if reporter is not None:
                 reporter(val)
