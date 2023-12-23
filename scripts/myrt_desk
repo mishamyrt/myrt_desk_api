@@ -90,28 +90,20 @@ async def calibrate(_, desk: MyrtDesk):
     await desk.legs.calibrate()
     print('Calibration is started')
 
-# # System commands
+# System commands
 
 @command()
 async def reboot(_, desk: MyrtDesk):
     """Handles a reboot command"""
     await desk.system.reboot()
 
-# @command()
-# async def logs(_, desk: MyrtDesk):
-#     """Handles a logs command"""
-#     def handle_log_line(message: str):
-#         print(f"{datetime.now()}: {message}")
-#     print("Listening for logs from desk")
-#     await desk.system.read_logs(handle_log_line)
-
-# @command(arg('path',  action='store', help='The path to the ESP32 bin firmware'))
-# async def flash_controller(args, desk: MyrtDesk):
-#     """Handles a flash-controller command"""
-#     print("Updating desk's legs firmware...")
-#     with open(args.path, mode="rb") as file:
-#         contents = file.read()
-#         await desk.system.update_firmware(contents, print_progress)
+@command(arg('path',  action='store', help='The path to the ESP32 bin firmware'))
+async def flash_controller(args, desk: MyrtDesk):
+    """Handles a flash-controller command"""
+    print("Updating desk's legs firmware...")
+    with open(args.path, mode="rb") as file:
+        contents = file.read()
+        await desk.system.update_firmware(contents, print_progress)
 
 @command()
 async def heap(_, desk: MyrtDesk):
@@ -133,8 +125,11 @@ async def disconnect(args, desk: MyrtDesk):
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(
-        async_run(
-            prepare=prepare,
-            after=disconnect
-    )))
+    try:
+        loop.run_until_complete(asyncio.gather(
+            async_run(
+                prepare=prepare,
+                after=disconnect
+        )))
+    except asyncio.TimeoutError:
+        print("Desk is not found on local network")
