@@ -92,11 +92,14 @@ class SocketStream():
     async def next_message(self) -> SocketMessage:
         return await self._data_messages_queue.get()
 
-    async def send(self, command: SocketMessage) -> bool:
-        """Sends command to MyrtDesk"""
+    async def send_raw(self, command: SocketMessage) -> bool:
         await self.connected()
         request = [len(command), *command]
-        success = await self._stream.send(request)
+        return await self._stream.send(request)
+
+    async def send(self, command: SocketMessage) -> bool:
+        """Sends command to MyrtDesk"""
+        success = await self.send_raw(command)
         if not success:
            return False
         try:

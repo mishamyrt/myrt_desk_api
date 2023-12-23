@@ -23,8 +23,18 @@ class DeskDomain(ABC):
         self._loop = loop
         self._messages = Queue()
 
-    async def send(self, command, *args: int) -> bool:
+    async def send(self, command, *args: int, skip_response=False) -> bool:
         """Sends command to MyrtDesk"""
+        command = [self.code, command.value]
+        if len(args) > 0:
+            command.extend([*args])
+        if skip_response:
+            return await self._stream.send_raw(command)
+        else:
+            return await self._stream.send(command)
+
+    async def send_raw(self, command, *args: int) -> bool:
+        """Sends raw command to MyrtDesk"""
         command = [self.code, command.value]
         if len(args) > 0:
             command.extend([*args])
