@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Optional
 
@@ -16,7 +17,7 @@ class PersistentDatagramStream:
         self._host_addr = addr
 
     async def connect(self):
-        print("PersistentDatagramStream: connect", self._host_addr)
+        logging.debug(f"PersistentDatagramStream: connecting to {self._host_addr}")
         if self._stream is None:
             self._stream = await connect(
                 self._host_addr,
@@ -24,10 +25,10 @@ class PersistentDatagramStream:
                 reuse_port=True)
             if self._peer_addr is None:
                 self._peer_addr = self._stream.sockname
-        print("PersistentDatagramStream: connected", self._host_addr)
+        logging.debug(f"PersistentDatagramStream: connected to {self._host_addr}")
 
     def close(self):
-        print("PersistentDatagramStream: close")
+        logging.debug("PersistentDatagramStream: close")
         if self._stream is None:
             return
         self._stream.close()
@@ -60,10 +61,10 @@ class PersistentDatagramStream:
             return None
         try:
             data, _ = await self._stream.recv()
-            print("PersistentDatagramStream: readed", list(data))
+            logging.debug(f"PersistentDatagramStream: got data ({list(data)})")
             return list(data)
         except (TransportClosed, RuntimeError):
-            print("PersistentDatagramStream: closed on read")
+            logging.debug("PersistentDatagramStream: error on read")
             self._stream = None
         return None
 
@@ -73,9 +74,9 @@ class PersistentDatagramStream:
         try:
             self._last_send_at = datetime.now()
             await self._stream.send(bytes(payload))
-            print("PersistentDatagramStream: writed", list(payload))
+            logging.debug(f"PersistentDatagramStream: sended data {list(payload)}")
             return True
         except (TransportClosed, RuntimeError):
-            print("PersistentDatagramStream: closed on write")
+            logging.debug("PersistentDatagramStream: error on write")
             self._stream = None
         return False
