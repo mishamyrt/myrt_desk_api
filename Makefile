@@ -2,7 +2,7 @@
 
 VENV_PATH = ./venv
 VENV = . $(VENV_PATH)/bin/activate;
-VERSION := 1.0.4
+VERSION := 1.0.5
 # $(shell python3.11 -m myrt_desk_api.version)
 
 SRC := \
