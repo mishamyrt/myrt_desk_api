@@ -2,11 +2,11 @@
 # pylint: skip-file
 """MyrtDesk API control app"""
 import asyncio
-from datetime import datetime
 
 from arrrgs import arg, async_run, command, global_args
 
 from myrt_desk_api import MyrtDesk
+from myrt_desk_api.backlight import Effect
 from myrt_desk_api.cli import assert_byte, hex_to_rgb, print_progress
 
 global_args(
@@ -48,7 +48,9 @@ async def brightness(args, desk: MyrtDesk):
 @command(arg('effect', help='Effect index', type=int))
 async def effect(args, desk: MyrtDesk):
     """Handles an effect command"""
-    await desk.backlight.set_effect(args.effect)
+    await desk.backlight.set_effect(
+        Effect(args.effect)
+    )
 
 @command()
 async def on(_, desk: MyrtDesk):
