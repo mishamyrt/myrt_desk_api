@@ -29,7 +29,7 @@ setuptools.setup(
     install_requires=[
         'asyncio-datagram==1.4.0',
         'arrrgs==3.1.0',
-        'typing-extensions==4.8.0',
+        'typing-extensions==4.9.0',
         'async_timeout==4.0.3'
     ],
     python_requires='>=3.7',
