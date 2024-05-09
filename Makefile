@@ -2,7 +2,7 @@
 
 VENV_PATH = ./venv
 VENV = . $(VENV_PATH)/bin/activate;
-VERSION := 1.0.5
+VERSION := 1.0.7
 # $(shell python3.11 -m myrt_desk_api.version)
 
 SRC := \
@@ -12,7 +12,7 @@ SRC := \
 publish: clean dist/
 	git tag "v$(VERSION)"
 	git push --tags
-	$(VENV) python3.11 -m twine upload --repository pypi dist/* -umishamyrt
+	$(VENV) python3.12 -m twine upload --repository pypi dist/*
 
 install: clean dist/
 	$(VENV) pip install --disable-pip-version-check .
@@ -34,9 +34,9 @@ lint:
 
 dist/: $(VENV_PATH) $(SRC)
 	echo "$(VERSION)" > ".version"
-	$(VENV) python3.11 setup.py sdist bdist_wheel
+	$(VENV) python3.12 setup.py sdist bdist_wheel
 
 $(VENV_PATH): requirements.txt
 	rm -rf "$(VENV_PATH)"
-	python3.11 -m venv "$(VENV_PATH)"
+	python3.12 -m venv "$(VENV_PATH)"
 	$(VENV) pip3 install --disable-pip-version-check -r requirements.txt
